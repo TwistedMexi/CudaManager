@@ -42,6 +42,7 @@ namespace CUDA_Manager
         private delegate bool StateChecker();
         public List<string[]> logs = new List<string[]>();
         List<string> miners = new List<string>();
+        bool nocheck = false;
         bool isDirty = false;
         bool import = false;
         bool hasFailed = true;
@@ -149,6 +150,7 @@ namespace CUDA_Manager
             if (!IsSingleInstance())
             {
                 MessageBox.Show("This CUDA Manager is already running!\r\nIf you want to run parallel miners, please make a separate Cuda Manager folder.", "CUDA Manager");
+                nocheck = true;
                 this.Close();
             }
             else
@@ -1388,18 +1390,21 @@ namespace CUDA_Manager
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            DialogResult dialogResult = MessageBox.Show("Closing CUDA Manager will halt mining and clear the miner log.\r\n\r\nDo you want to exit?", "Exit CUDA Manager", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dialogResult == DialogResult.Yes)
+            if (!nocheck)
             {
-                SendControlC(p);
-                SaveListDat();
-                ovheat = false;
-                FanController(false, 0);
-                trayIcon.Visible = false;
-                SaveSettings(true);
+                DialogResult dialogResult = MessageBox.Show("Closing CUDA Manager will halt mining and clear the miner log.\r\n\r\nDo you want to exit?", "Exit CUDA Manager", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    SendControlC(p);
+                    SaveListDat();
+                    ovheat = false;
+                    FanController(false, 0);
+                    trayIcon.Visible = false;
+                    SaveSettings(true);
+                }
+                else
+                    e.Cancel = true;
             }
-            else
-                e.Cancel = true;
         }
 
     }
