@@ -86,7 +86,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(243, 72);
             this.label3.TabIndex = 3;
-            this.label3.Text = "CUDA Manager\r\nVersion 1.0\r\nAuthor: TwistedMexi";
+            this.label3.Text = "CUDA Manager\r\nVersion 1.1\r\nAuthor: TwistedMexi";
             // 
             // label4
             // 

@@ -117,27 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="label1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAfcAAAB1CAYAAABTeqhAAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1
-        MAAA6mAAADqYAAAXb5JfxUYAAAAJcEhZcwAACxEAAAsRAX9kX5EAAAHxSURBVHhe7chBDcAwAMSwQi/0
-        FUAI3ORI/uS8LgDwKzkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGA
-        XTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBdOQGAXTkBgF05AYBJ535q
-        tPgvfPsQFQAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="label1.Text" xml:space="preserve">
-    <value>CUDA Manager started as a way to add failover to cudaminer, 
-but turned into so much more.  CUDA Manager makes mining simple 
-when you want it, and complex if you need it. Forget batch files, 
-separate temperature readers, and separate fan controllers. 
-Let CUDA Manager do it all for you.</value>
-  </data>
 </root>

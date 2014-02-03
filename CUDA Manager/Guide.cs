@@ -169,7 +169,8 @@ namespace CUDA_Manager
 
         private void rtInfo_Resize(object sender, EventArgs e)
         {
-            rtInfo.RightMargin = rtInfo.Width - 30;
+            if (this.WindowState != FormWindowState.Minimized)
+                rtInfo.RightMargin = rtInfo.Width - 30;
         }
     }
 }

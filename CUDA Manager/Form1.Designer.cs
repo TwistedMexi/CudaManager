@@ -87,6 +87,7 @@
             this.tsStart = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.viewMinerLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsClearLog = new System.Windows.Forms.ToolStripMenuItem();
             this.tsSaveLog = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsExit = new System.Windows.Forms.ToolStripMenuItem();
@@ -95,6 +96,8 @@
             this.tsMaxCon = new System.Windows.Forms.ToolStripMenuItem();
             this.tsGhost = new System.Windows.Forms.ToolStripMenuItem();
             this.toolMinTray = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsAdvance = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.tsGuide = new System.Windows.Forms.ToolStripMenuItem();
@@ -198,7 +201,8 @@
             this.CBcores.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CBcores.FormattingEnabled = true;
             this.CBcores.Items.AddRange(new object[] {
-            "Single-core (Default)",
+            "None (Default)",
+            "Single-core",
             "All Cores"});
             this.CBcores.Location = new System.Drawing.Point(88, 154);
             this.CBcores.Name = "CBcores";
@@ -511,7 +515,7 @@
             this.bg_monitor.WorkerSupportsCancellation = true;
             this.bg_monitor.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bg_monitor_DoWork);
             this.bg_monitor.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bg_monitor_ProgressChanged);
-            this.bg_monitor.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bg_minemgr_RunWorkerCompleted);
+            this.bg_monitor.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bg_all_RunWorkerCompleted);
             // 
             // statusStrip1
             // 
@@ -569,7 +573,7 @@
             // 
             this.tsSaveConfig.Enabled = false;
             this.tsSaveConfig.Name = "tsSaveConfig";
-            this.tsSaveConfig.Size = new System.Drawing.Size(152, 22);
+            this.tsSaveConfig.Size = new System.Drawing.Size(137, 22);
             this.tsSaveConfig.Text = "Save Config";
             this.tsSaveConfig.Click += new System.EventHandler(this.tsSaveConfig_Click);
             // 
@@ -649,7 +653,7 @@
             this.tsSetFan.MaxDropDownItems = 10;
             this.tsSetFan.Name = "tsSetFan";
             this.tsSetFan.Size = new System.Drawing.Size(75, 23);
-            this.tsSetFan.Text = "[Default]";
+            this.tsSetFan.SelectedIndex = 0;
             this.tsSetFan.SelectedIndexChanged += new System.EventHandler(this.tsSetFan_SelectedIndexChanged);
             // 
             // tsTime
@@ -716,10 +720,19 @@
             // 
             // viewMinerLogToolStripMenuItem
             // 
+            this.viewMinerLogToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsClearLog});
             this.viewMinerLogToolStripMenuItem.Name = "viewMinerLogToolStripMenuItem";
             this.viewMinerLogToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.viewMinerLogToolStripMenuItem.Text = "View Miner Log";
             this.viewMinerLogToolStripMenuItem.Click += new System.EventHandler(this.viewMinerLogToolStripMenuItem_Click);
+            // 
+            // tsClearLog
+            // 
+            this.tsClearLog.Name = "tsClearLog";
+            this.tsClearLog.Size = new System.Drawing.Size(158, 22);
+            this.tsClearLog.Text = "Clear Miner Log";
+            this.tsClearLog.Click += new System.EventHandler(this.tsClearLog_Click);
             // 
             // tsSaveLog
             // 
@@ -745,7 +758,9 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolOnTop,
             this.tsMaxCon,
-            this.toolMinTray});
+            this.toolMinTray,
+            this.toolStripSeparator4,
+            this.tsAdvance});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -754,7 +769,7 @@
             // 
             this.toolOnTop.CheckOnClick = true;
             this.toolOnTop.Name = "toolOnTop";
-            this.toolOnTop.Size = new System.Drawing.Size(170, 22);
+            this.toolOnTop.Size = new System.Drawing.Size(181, 22);
             this.toolOnTop.Text = "Always on top";
             this.toolOnTop.CheckStateChanged += new System.EventHandler(this.toolOnTop_CheckStateChanged);
             // 
@@ -764,7 +779,7 @@
             this.tsMaxCon.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsGhost});
             this.tsMaxCon.Name = "tsMaxCon";
-            this.tsMaxCon.Size = new System.Drawing.Size(170, 22);
+            this.tsMaxCon.Size = new System.Drawing.Size(181, 22);
             this.tsMaxCon.Text = "Maximize Console";
             this.tsMaxCon.Click += new System.EventHandler(this.maximizeConsoleToolStripMenuItem_Click);
             // 
@@ -781,8 +796,20 @@
             // 
             this.toolMinTray.CheckOnClick = true;
             this.toolMinTray.Name = "toolMinTray";
-            this.toolMinTray.Size = new System.Drawing.Size(170, 22);
+            this.toolMinTray.Size = new System.Drawing.Size(181, 22);
             this.toolMinTray.Text = "Minimize to Tray";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(178, 6);
+            // 
+            // tsAdvance
+            // 
+            this.tsAdvance.Name = "tsAdvance";
+            this.tsAdvance.Size = new System.Drawing.Size(181, 22);
+            this.tsAdvance.Text = "Advanced Options...";
+            this.tsAdvance.Click += new System.EventHandler(this.tsAdvance_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -866,7 +893,7 @@
             this.bg_tray.WorkerSupportsCancellation = true;
             this.bg_tray.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bg_tray_DoWork);
             this.bg_tray.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bg_tray_ProgressChanged);
-            this.bg_tray.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bg_minemgr_RunWorkerCompleted);
+            this.bg_tray.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bg_all_RunWorkerCompleted);
             // 
             // saFilediag
             // 
@@ -990,6 +1017,9 @@
         private System.Windows.Forms.ContextMenuStrip conDG;
         private System.Windows.Forms.ToolStripMenuItem conSelMiner;
         private System.Windows.Forms.SaveFileDialog saFilediag;
+        private System.Windows.Forms.ToolStripMenuItem tsClearLog;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem tsAdvance;
     }
 }
 

@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using CUDA_Manager.NVext.Hardware.Nvidia;
 using CUDA_Manager.NVext.Hardware;
+using System.Globalization;
 
 namespace CUDA_Manager
 {
@@ -41,6 +42,8 @@ namespace CUDA_Manager
         static string datpath = Environment.CurrentDirectory + "\\Data\\";
         private delegate bool StateChecker();
         public List<string[]> logs = new List<string[]>();
+        public int unsafetmp = 80;
+        public int shutdowntmp = 100;
         List<string> miners = new List<string>();
         bool nocheck = false;
         bool isDirty = false;
@@ -57,17 +60,17 @@ namespace CUDA_Manager
         int yays = 0;
         int timespent = 0;
         int rowidx = 0;
-        string source = null;
-        string output = null;
-        string activeminer = null;
-        string stopReason = null;
+        int badminers = 0;
+        string source;
+        string output;
+        string activeminer;
+        string stopReason;
         //Sensor Dealings
         List<NvidiaGPU> gpulist = new List<NvidiaGPU>();
         List<Sensor> fansensors = new List<Sensor>();
         List<Sensor> tempsensors = new List<Sensor>();
         bool ovheat = false;
         bool ohprotecting = false;
-        int unsafetmp = 80;
         int hightemp = 0;
         int fanspeed = 0;
         int fantarget = 0;
@@ -218,6 +221,7 @@ namespace CUDA_Manager
                 {
                     batBuilder(key, false, source);
                 }
+                miners.Add(key);
                 string[] entry = new string[4];
                 entry[0] = key;
                 entry[1] = TBstrat.Text;
@@ -366,9 +370,8 @@ namespace CUDA_Manager
                         if (sepline[sepline.Count() - 1].ToLower().StartsWith("cudaminer"))
                         {
                             found = true;
-                            string[] divi = line.Split(' ');
+                            string[] divi = sepline[sepline.Count() - 1].Split(' ');
                             int indkeep = 0;
-                            int skipcnt = 0;
                             foreach (string div in divi)
                             {
                                 indkeep++;
@@ -376,8 +379,11 @@ namespace CUDA_Manager
                                 {
                                     switch (divi[indkeep])
                                     {
-                                        case "1":
+                                        case "0":
                                             CBcores.SelectedIndex = 1;
+                                            break;
+                                        case "1":
+                                            CBcores.SelectedIndex = 2;
                                             break;
                                         default:
                                             CBcores.SelectedIndex = 0;
@@ -385,7 +391,7 @@ namespace CUDA_Manager
                                     }
                                     skip = true;
                                 }
-                                if (div.Contains("-i"))
+                                else if (div.Contains("-i"))
                                 {
                                     switch (divi[indkeep])
                                     {
@@ -398,28 +404,32 @@ namespace CUDA_Manager
                                     }
                                     skip = true;
                                 }
-                                if (div.Contains("-o"))
+                                else if (div.Contains("-o"))
                                 {
                                     TBstrat.Text = divi[indkeep];
                                     tbnickname.Text = safename.Replace(".bat", "");
                                     skip = true;
                                 }
-                                if (div.Contains("-O"))
+                                else if (div.Contains("-O"))
                                 {
                                     String[] wrksplit = divi[indkeep].Split(':');
                                     tbWorker.Text = wrksplit[0];
                                     TBpass.Text = wrksplit[1];
                                     skip = true;
                                 }
+                                else if (div.Contains("-u"))
+                                {
+                                    tbWorker.Text = divi[indkeep];
+                                    skip = true;
+                                }
+                                else if (div.Contains("-p"))
+                                {
+                                    TBpass.Text = divi[indkeep];
+                                    skip = true;
+                                }
                                 else if (skip)
                                 {
-                                    if (skipcnt > 2)
-                                    {
-                                        skipcnt = 0;
-                                        skip = false;
-                                    }
-
-                                    skipcnt++;
+                                    skip = false;
                                 }
                                 else if (!div.ToLower().Contains("cudaminer"))
                                 {
@@ -442,11 +452,15 @@ namespace CUDA_Manager
         private void batBuilder(string key, bool import, string source)
         {
             string inter = "0";
-            string core = "0";
             if (chkInter.Checked)
                 inter = "1";
-            if (CBcores.SelectedIndex != 0)
+
+            string core = "2";
+            if (CBcores.SelectedIndex == 1)
+                core = "0";
+            else if (CBcores.SelectedIndex == 2)
                 core = "1";
+
             string command = "cudaminer.exe " + tbConfig.Text + " -i " + inter + " -H " + core + " -o " + TBstrat.Text + " -O " + tbWorker.Text + ":" + TBpass.Text;
 
             try
@@ -468,7 +482,7 @@ namespace CUDA_Manager
                 else
                     File.WriteAllText(minepath + key + ".bat", command);
             }
-            catch { MessageBox.Show("Unable to create miner."); }
+            catch { MessageBox.Show("Unable to create miner.\r\nTry running as Administrator."); }
 
         }
 
@@ -495,12 +509,14 @@ namespace CUDA_Manager
         {
             try
             {
-                string[] Pset = new string[5];
+                string[] Pset = new string[7];
                 Pset[0] = toolOnTop.Checked.ToString();
                 Pset[1] = toolMinTray.Checked.ToString();
                 Pset[2] = OHprotect.Checked.ToString();
                 Pset[3] = conShowWarnings.Checked.ToString();
                 Pset[4] = fansetting;
+                Pset[5] = unsafetmp.ToString();
+                Pset[6] = shutdowntmp.ToString();
 
                 File.WriteAllLines(datpath + "settings.dat", Pset);
 
@@ -526,6 +542,13 @@ namespace CUDA_Manager
                     fansetting = Pget[4];
                     if (fansetting != "[Default]")
                         tsSetFan.SelectedItem = Pget[4];
+
+                    try //V1.0 settings upgrade assistance.
+                    {
+                        unsafetmp = Convert.ToInt32(Pget[5]);
+                        shutdowntmp = Convert.ToInt32(Pget[6]);
+                    }
+                    catch { }
                 }
 
                 if (File.Exists(datpath + "session.dat"))
@@ -659,6 +682,7 @@ namespace CUDA_Manager
                     {
                         if (sense.SensorType == SensorType.Temperature)
                             tempsensors.Add(sense);
+
                         if (sense.SensorType == SensorType.Control)
                         {
                             fansensors.Add(sense);
@@ -666,6 +690,7 @@ namespace CUDA_Manager
                         }
                     }
                 }
+
                 //Protect default fan settings.
                 if (!isDirty)
                     File.WriteAllText(datpath + "session.dat", fancons.ToString());
@@ -724,8 +749,6 @@ namespace CUDA_Manager
                 bg_minemgr.CancelAsync();
                 SendControlC(p);
                 tsStatus.Text = "Status: Ready...";
-                debugbox.AppendText("Miner returned after " + Math.Round((double)timespent / 60, 2) + " hours of work.\r\n" + stopReason);
-                Logger("Miner Stopped. Reason: User Requested.");
                 buStart.ForeColor = Color.DarkGreen;
                 buStart.Text = "Start Miner";
                 tsStart.Text = "Start Miner";
@@ -753,8 +776,16 @@ namespace CUDA_Manager
                     p.BeginErrorReadLine();
                     bg_minemgr.ReportProgress(2);
                 }
+                else
+                {
+                    MessageBox.Show("Unable to start miner!");
+                    bg_minemgr.ReportProgress(4);
+                }
             }
-            catch { }
+            catch
+            {
+                bg_minemgr.ReportProgress(3);
+            }
         }
 
         private void ConsoleDataReceived(object sender, DataReceivedEventArgs e)
@@ -793,10 +824,18 @@ namespace CUDA_Manager
         {
             foreach (Sensor fan in fansensors)
             {
+
                 if (auto)
                     fan.Control.SetAuto();
                 else if (value != 0)
+                {
+                    if (fan.Control.MaxSoftwareValue < value)
+                        value = (int)fan.Control.MaxSoftwareValue;
+                    else if (fan.Control.MinSoftwareValue > value)
+                        value = (int)fan.Control.MinSoftwareValue;
+
                     fan.Control.SetSoftware(value);
+                }
                 else if (isDirty)
                 {
                     string[] fanS = fansets[fan.Index].Split(',');
@@ -837,7 +876,7 @@ namespace CUDA_Manager
 
 
         //trayIcon Handler
-        private void inflateBalloon(string title, string text, ToolTipIcon ico)
+        public void inflateBalloon(string title, string text, ToolTipIcon ico)
         {
             if (conShowWarnings.Checked)
             {
@@ -875,8 +914,10 @@ namespace CUDA_Manager
             hrsum = 0;
             skiphr = true;
             failstat = 0;
+            badminers = 0;
             bool first = true;
             int hour = 0;
+            output = null;
             while (!bg_minemgr.CancellationPending)
             {
                 if (hasFailed)
@@ -906,17 +947,7 @@ namespace CUDA_Manager
 
         private void bg_minemgr_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.ProgressPercentage == 2)
-            {
-                tsStatus.Text = "Status: Mining away!";
-                buStart.Enabled = true;
-                tsStart.Enabled = true;
-                laActive.Text = "Active Miner: " + activeminer;
-                lalfails.Text = "Failovers: " + failstat;
-                if (failstat == 0)
-                    Logger("[Miner Started] " + activeminer);
-            }
-            else
+            if (e.ProgressPercentage == 1)
             {
                 try
                 {
@@ -932,28 +963,34 @@ namespace CUDA_Manager
                             if (output != debugbox.Lines[debugbox.Lines.Count() - 2])
                                 debugbox.AppendText(output + "\r\n");
                         }
-                        else
+                        else if (output != null)
                             debugbox.AppendText(output + "\r\n");
 
                         //get hr
                         if (output.EndsWith("hash/s"))
                         {
                             string[] hrtmp = output.Split(',');
-                            string[] hrtmp2 = hrtmp[2].Split(' ');
+                            string[] hrtmp2 = null;
+                            if (hrtmp.Count() == 2)
+                                hrtmp2 = hrtmp[1].Split(' ');
+                            else if (hrtmp.Count() == 3)
+                                hrtmp2 = hrtmp[2].Split(' ');
                             if (hrsum == 0)
                             {
                                 if (skiphr)
                                     skiphr = false;
                                 else
                                 {
-                                    hrsum = Convert.ToDouble(hrtmp2[1]);
+                                    hrsum = Convert.ToDouble(hrtmp2[1], CultureInfo.InvariantCulture);
                                     hr = hrsum;
                                 }
                             }
                             else
                             {
-                                hrsum += Convert.ToDouble(hrtmp2[1]);
-                                hr = hrsum / hrcnt++;
+                                hrsum += Convert.ToDouble(hrtmp2[1], CultureInfo.InvariantCulture);
+                                hr = hrsum / hrcnt;
+                                if (output.Contains("GPU #0"))
+                                    hrcnt++;
                             }
                         }
                         else if (output.Contains("launch configuration"))
@@ -967,7 +1004,7 @@ namespace CUDA_Manager
                         }
 
                         //report to monitor
-                        if (output.Contains("failed") && !output.Contains("HTTP"))
+                        if ((output.Contains("failed") || output.Contains("interrupted")) && !output.Contains("HTTP"))
                             failcnt++;
                         else if (!output.Contains("retry") && !output.Contains("connection") && !output.Contains("HTTP"))
                             failcnt = 0;
@@ -975,10 +1012,48 @@ namespace CUDA_Manager
                 }
                 catch { }
             }
+            else if (e.ProgressPercentage == 2)
+            {
+                tsStatus.Text = "Status: Mining away!";
+                buStart.Enabled = true;
+                tsStart.Enabled = true;
+                laActive.Text = "Active Miner: " + activeminer;
+                lalfails.Text = "Failovers: " + failstat;
+                if (failstat == 0)
+                    Logger("[Miner Started] " + activeminer);
+            }
+            else if (e.ProgressPercentage == 3)
+            {
+                if (dgView.Rows.Count == 1 || dgView.Rows.Count <= badminers++)
+                {
+                    inflateBalloon("Miner not found!", "Out of viable miners. Halted.", ToolTipIcon.Error);
+                    stopReason = "Reason: Miner not found.";
+                    MinerController(true);
+                }
+                else
+                {
+                    inflateBalloon("Miner not found!", "Miner file could not be found. Trying next miner.", ToolTipIcon.Error);
+                    debugbox.AppendText("[!]Miner not found. Sending next miner in...\r\n");
+                    hasFailed = true;
+                }
+            }
+            else
+            {
+                inflateBalloon("Unable to start miner!", "cudaminer could not be started.", ToolTipIcon.Error);
+                stopReason = "Reason: Unable to start miner.";
+                MinerController(true);
+            }
         }
 
         //This hits only when the miner is stopped.
         private void bg_minemgr_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            bgCleaner();
+            debugbox.AppendText("Miner returned after " + Math.Round((double)timespent / 60, 2) + " hours of work.\r\n" + stopReason);
+            Logger("Miner Stopped. Reason: User Requested.");
+        }
+
+        private void bg_all_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             bgCleaner();
         }
@@ -992,6 +1067,7 @@ namespace CUDA_Manager
 
                 ovheat = false;
                 tempstat = "GPU: ";
+                int tmpcnt = 0;
                 foreach (Sensor temps in tempsensors)
                 {
                     if (temps.Index == 0 || (hightemp < temps.Value))
@@ -999,16 +1075,17 @@ namespace CUDA_Manager
                     if (temps.Value >= unsafetmp)
                         ovheat = true;
                     tempstat += temps.Value + "°C";
-                    if (tempsensors.Count > 1 && temps.Index < (tempsensors.Count - 1))
+                    if (tempsensors.Count > 1 && tmpcnt++ < (tempsensors.Count - 1))
                         tempstat += " | ";
                 }
                 fanstat = "Fan: ";
+                int fancnt = 0;
                 foreach (Sensor fans in fansensors)
                 {
                     if (fans.Index == 0 || (fanspeed > fans.Value))
                         fanspeed = (int)fans.Value;
                     fanstat += fans.Value + "%";
-                    if (fansensors.Count > 1 && fans.Index < (fansensors.Count - 1))
+                    if (fansensors.Count > 1 && fancnt++ < (fansensors.Count - 1))
                         fanstat += " | ";
                 }
                 bg_sensors.ReportProgress(1);
@@ -1032,6 +1109,7 @@ namespace CUDA_Manager
 
             tsTemps.Text = tempstat;
             tsFanstat.Text = fanstat;
+            trayIcon.Text = "CUDA Manager\r\n" + activeminer + "\r\n" + tsHR.Text.Replace("Avg. Hashrate: ", "") + "\r\n" + tempstat;
         }
 
         //Monitor
@@ -1058,7 +1136,7 @@ namespace CUDA_Manager
                 debugbox.AppendText("[!]Retry limit reached. Miner abandoned. Sending next miner in...\r\n");
                 inflateBalloon("[!]Retry Limit Reached", "Miner abandoned. Sending next miner in...", ToolTipIcon.Info);
             }
-            else
+            else if (e.ProgressPercentage == 2)
             {
                 timerunning = DateTime.Now.Subtract(starttime);
                 timespent = (int)timerunning.TotalMinutes;
@@ -1089,7 +1167,7 @@ namespace CUDA_Manager
             {
                 if (unstable)
                 {
-                    if (hightemp >= unsafetmp + 20)
+                    if (hightemp >= shutdowntmp)
                     {
                         if (shutdown == 0)
                         {
@@ -1108,7 +1186,7 @@ namespace CUDA_Manager
                         unstable = false;
                     }
                 }
-                else if (hightemp >= unsafetmp + 20)
+                else if (hightemp >= shutdowntmp)
                 {
                     Logger("[Unstable GPU Temperature] Miner will halt in 30 sec.");
                     inflateBalloon("[!] Unstable GPU Temperatures!", "Mining will cease automatically if temperatures\r\ndo not decrease within 30 seconds.", ToolTipIcon.Error);
@@ -1285,14 +1363,21 @@ namespace CUDA_Manager
         {
             if (logs.Count() > 0)
             {
-                this.TopMost = false;
                 Form f = new Logs(this);
-                f.ShowDialog();
-                if (toolOnTop.Checked)
-                    this.TopMost = true;
+                f.ShowDialog(this);
             }
             else
                 MessageBox.Show("No entries to show.");
+        }
+
+        private void tsClearLog_Click(object sender, EventArgs e)
+        {
+            DialogResult dialogResult = MessageBox.Show("This will completely clear the miner log.\r\n\r\nAre you sure?", "Clear Miner Log", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dialogResult == DialogResult.Yes)
+            {
+                logs.Clear();
+                Logger("[Log Cleared] User cleared log");
+            }
         }
 
         private void tsSaveLog_Click(object sender, EventArgs e)
@@ -1323,30 +1408,20 @@ namespace CUDA_Manager
 
         private void donateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.TopMost = false;
-            Form f = new Donor();
-            f.ShowDialog();
-            if (toolOnTop.Checked)
-                this.TopMost = true;
+            Form f = new Donor(this);
+            f.ShowDialog(this);
         }
 
         private void tsGuide_Click(object sender, EventArgs e)
         {
-            this.TopMost = false;
             Form f = new Guide();
-            f.ShowDialog();
-            if (toolOnTop.Checked)
-                this.TopMost = true;
-
+            f.Show(this);
         }
 
         private void tsAbout_Click(object sender, EventArgs e)
         {
-            this.TopMost = false;
             Form f = new Info();
-            f.ShowDialog();
-            if (toolOnTop.Checked)
-                this.TopMost = true;
+            f.ShowDialog(this);
         }
 
         #endregion
@@ -1405,6 +1480,12 @@ namespace CUDA_Manager
                 else
                     e.Cancel = true;
             }
+        }
+
+        private void tsAdvance_Click(object sender, EventArgs e)
+        {
+            Form f = new adv(this);
+            f.ShowDialog(this);
         }
 
     }

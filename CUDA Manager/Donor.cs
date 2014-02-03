@@ -11,14 +11,17 @@ namespace CUDA_Manager
 {
     public partial class Donor : Form
     {
-        public Donor()
+        private Form1 parent;
+        public Donor(Form1 parent)
         {
+            this.parent = parent;
             InitializeComponent();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(laAddress.Text);
+            parent.inflateBalloon("Thank you!", "...whoever you are, it's appreciated! =)", ToolTipIcon.None);
         }
     }
 }
