@@ -45,6 +45,7 @@
             this.buImport = new System.Windows.Forms.Button();
             this.buAddMine = new System.Windows.Forms.Button();
             this.gbFailover = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.buMup = new System.Windows.Forms.Button();
             this.buMdwn = new System.Windows.Forms.Button();
             this.buRemove = new System.Windows.Forms.Button();
@@ -110,6 +111,7 @@
             this.conExit = new System.Windows.Forms.ToolStripMenuItem();
             this.bg_tray = new System.ComponentModel.BackgroundWorker();
             this.saFilediag = new System.Windows.Forms.SaveFileDialog();
+            this.bg_idler = new System.ComponentModel.BackgroundWorker();
             this.gbFailover.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgView)).BeginInit();
             this.conDG.SuspendLayout();
@@ -260,6 +262,7 @@
             // 
             this.gbFailover.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbFailover.Controls.Add(this.button1);
             this.gbFailover.Controls.Add(this.buMup);
             this.gbFailover.Controls.Add(this.buMdwn);
             this.gbFailover.Controls.Add(this.buRemove);
@@ -272,6 +275,17 @@
             this.gbFailover.TabIndex = 1;
             this.gbFailover.TabStop = false;
             this.gbFailover.Text = "Failover";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(373, 222);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 16;
+            this.button1.Text = "Test Stratum";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // buMup
             // 
@@ -653,7 +667,6 @@
             this.tsSetFan.MaxDropDownItems = 10;
             this.tsSetFan.Name = "tsSetFan";
             this.tsSetFan.Size = new System.Drawing.Size(75, 23);
-            this.tsSetFan.SelectedIndex = 0;
             this.tsSetFan.SelectedIndexChanged += new System.EventHandler(this.tsSetFan_SelectedIndexChanged);
             // 
             // tsTime
@@ -900,6 +913,12 @@
             this.saFilediag.Filter = "Comma Delimited|*.csv";
             this.saFilediag.FileOk += new System.ComponentModel.CancelEventHandler(this.saFilediag_FileOk);
             // 
+            // bg_idler
+            // 
+            this.bg_idler.WorkerSupportsCancellation = true;
+            this.bg_idler.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bg_idler_DoWork);
+            this.bg_idler.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bg_idler_RunWorkerCompleted);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1020,6 +1039,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsClearLog;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem tsAdvance;
+        private System.Windows.Forms.Button button1;
+        private System.ComponentModel.BackgroundWorker bg_idler;
     }
 }
 

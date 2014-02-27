@@ -38,12 +38,14 @@
             this.buOkay = new System.Windows.Forms.Button();
             this.buReset = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.numIdle = new System.Windows.Forms.NumericUpDown();
+            this.cbIdleMine = new System.Windows.Forms.ComboBox();
+            this.chkIdle = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numAct)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShut)).BeginInit();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numIdle)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -56,7 +58,7 @@
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(270, 91);
+            this.groupBox1.Size = new System.Drawing.Size(288, 91);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Cooler Overrides";
@@ -130,9 +132,9 @@
             // 
             this.buOkay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.buOkay.Location = new System.Drawing.Point(207, 180);
+            this.buOkay.Location = new System.Drawing.Point(207, 207);
             this.buOkay.Name = "buOkay";
-            this.buOkay.Size = new System.Drawing.Size(75, 23);
+            this.buOkay.Size = new System.Drawing.Size(93, 23);
             this.buOkay.TabIndex = 2;
             this.buOkay.Text = "Apply";
             this.buOkay.UseVisualStyleBackColor = true;
@@ -142,9 +144,9 @@
             // 
             this.buReset.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.buReset.Location = new System.Drawing.Point(12, 180);
+            this.buReset.Location = new System.Drawing.Point(12, 207);
             this.buReset.Name = "buReset";
-            this.buReset.Size = new System.Drawing.Size(87, 23);
+            this.buReset.Size = new System.Drawing.Size(105, 23);
             this.buReset.TabIndex = 3;
             this.buReset.Text = "Reset Settings";
             this.buReset.UseVisualStyleBackColor = true;
@@ -152,39 +154,61 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.comboBox1);
-            this.groupBox2.Controls.Add(this.checkBox1);
-            this.groupBox2.Enabled = false;
+            this.groupBox2.Controls.Add(this.numIdle);
+            this.groupBox2.Controls.Add(this.cbIdleMine);
+            this.groupBox2.Controls.Add(this.chkIdle);
             this.groupBox2.Location = new System.Drawing.Point(12, 109);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(270, 59);
+            this.groupBox2.Size = new System.Drawing.Size(288, 79);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Miner Options";
             // 
-            // comboBox1
+            // numIdle
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(139, 17);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(125, 21);
-            this.comboBox1.TabIndex = 1;
+            this.numIdle.Location = new System.Drawing.Point(179, 18);
+            this.numIdle.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.numIdle.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numIdle.Name = "numIdle";
+            this.numIdle.Size = new System.Drawing.Size(48, 20);
+            this.numIdle.TabIndex = 2;
+            this.numIdle.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
-            // checkBox1
+            // cbIdleMine
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(6, 19);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(127, 17);
-            this.checkBox1.TabIndex = 0;
-            this.checkBox1.Text = "Start miner when idle:";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.cbIdleMine.FormattingEnabled = true;
+            this.cbIdleMine.Location = new System.Drawing.Point(31, 44);
+            this.cbIdleMine.Name = "cbIdleMine";
+            this.cbIdleMine.Size = new System.Drawing.Size(196, 21);
+            this.cbIdleMine.TabIndex = 1;
+            // 
+            // chkIdle
+            // 
+            this.chkIdle.AutoSize = true;
+            this.chkIdle.Location = new System.Drawing.Point(6, 19);
+            this.chkIdle.Name = "chkIdle";
+            this.chkIdle.Size = new System.Drawing.Size(273, 17);
+            this.chkIdle.TabIndex = 0;
+            this.chkIdle.Text = "Start miner when idle more than                    minutes.";
+            this.chkIdle.UseVisualStyleBackColor = true;
             // 
             // adv
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(292, 215);
+            this.ClientSize = new System.Drawing.Size(310, 242);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.buReset);
             this.Controls.Add(this.buOkay);
@@ -198,6 +222,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numShut)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numIdle)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -214,7 +239,8 @@
         private System.Windows.Forms.Button buOkay;
         private System.Windows.Forms.Button buReset;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ComboBox cbIdleMine;
+        private System.Windows.Forms.CheckBox chkIdle;
+        private System.Windows.Forms.NumericUpDown numIdle;
     }
 }

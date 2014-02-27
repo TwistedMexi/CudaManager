@@ -20,6 +20,14 @@ namespace CUDA_Manager
 
         private void buOkay_Click(object sender, EventArgs e)
         {
+            if (chkIdle.Checked)
+                parent.idlestart = true;
+            else
+                parent.idlestart = false;
+
+            parent.idleminer = cbIdleMine.Text;
+            parent.idletimer = (int)numIdle.Value * 60;
+
             if (numAct.Value > 80)
             {
                 DialogResult dialogResult = MessageBox.Show("Please be cautious when altering default temperature settings.\r\n\r\nIt's highly advised against raising Protective Cooling's limit above 80C.\r\nInstead, please check your fans for dust.\r\n\r\nDo you want to continue?", "Override Defaults?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -48,6 +56,20 @@ namespace CUDA_Manager
         {
             numAct.Value = parent.unsafetmp;
             numShut.Value = parent.shutdowntmp;
+            if (parent.idletimer >= 60)
+                numIdle.Value = parent.idletimer / 60;
+
+            if (parent.idlestart)
+                chkIdle.Checked = true;
+
+            foreach (string miner in parent.miners)
+            {
+                cbIdleMine.Items.Add(miner);
+            }
+            if (parent.idleminer != "")
+                cbIdleMine.SelectedItem = parent.idleminer;
+            else
+                cbIdleMine.SelectedIndex = 0;
         }
     }
 }

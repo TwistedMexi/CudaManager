@@ -16,6 +16,8 @@ using System.Xml.Serialization;
 using CUDA_Manager.NVext.Hardware.Nvidia;
 using CUDA_Manager.NVext.Hardware;
 using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
 
 namespace CUDA_Manager
 {
@@ -41,16 +43,21 @@ namespace CUDA_Manager
         static string minepath = Environment.CurrentDirectory + "\\Miners\\";
         static string datpath = Environment.CurrentDirectory + "\\Data\\";
         private delegate bool StateChecker();
+        public bool idlestart = false;
+        bool idlestarter = false;
+        public int idletimer = -1;
+        public string idleminer;
         public List<string[]> logs = new List<string[]>();
         public int unsafetmp = 80;
         public int shutdowntmp = 100;
-        List<string> miners = new List<string>();
+        public List<string> miners = new List<string>();
         bool nocheck = false;
         bool isDirty = false;
         bool import = false;
         bool hasFailed = true;
         bool ghosting = false;
         bool skiphr = true;
+        string maingpu;
         double hr = 0;
         double hrsum = 0;
         int hrcnt = 2;
@@ -170,7 +177,7 @@ namespace CUDA_Manager
                         Directory.CreateDirectory(datpath);
                 }
                 catch { MessageBox.Show("Unable to create Miner directory.\r\nIf UAC is turned on, start with \"Run as Administrator.\""); }
-
+                //MessageBox.Show("This is a DEBUG version of CUDA Manager.\r\n\r\nIf you have not been asked to test a copy of CUDA Manager\r\nPlease close this, and re-download from:\r\nhttp://reddit.com/r/cudamanager");
                 CudaCheck();
                 getSensors();
                 dirtyCheck();
@@ -185,6 +192,7 @@ namespace CUDA_Manager
 
                 LoadListDat();
                 CBcores.SelectedIndex = 0;
+                bg_idler.RunWorkerAsync();
             }
         }
 
@@ -367,7 +375,7 @@ namespace CUDA_Manager
                     foreach (string line in loadbat)
                     {
                         string[] sepline = line.Split('\\');
-                        if (sepline[sepline.Count() - 1].ToLower().StartsWith("cudaminer"))
+                        if (sepline[sepline.Count() - 1].ToLower().Replace("@","").Trim().StartsWith("cudaminer"))
                         {
                             found = true;
                             string[] divi = sepline[sepline.Count() - 1].Split(' ');
@@ -509,7 +517,7 @@ namespace CUDA_Manager
         {
             try
             {
-                string[] Pset = new string[7];
+                string[] Pset = new string[10];
                 Pset[0] = toolOnTop.Checked.ToString();
                 Pset[1] = toolMinTray.Checked.ToString();
                 Pset[2] = OHprotect.Checked.ToString();
@@ -517,6 +525,13 @@ namespace CUDA_Manager
                 Pset[4] = fansetting;
                 Pset[5] = unsafetmp.ToString();
                 Pset[6] = shutdowntmp.ToString();
+
+                if (idletimer != -1)
+                {
+                    Pset[7] = idlestart.ToString();
+                    Pset[8] = idletimer.ToString();
+                    Pset[9] = idleminer;
+                }
 
                 File.WriteAllLines(datpath + "settings.dat", Pset);
 
@@ -547,6 +562,9 @@ namespace CUDA_Manager
                     {
                         unsafetmp = Convert.ToInt32(Pget[5]);
                         shutdowntmp = Convert.ToInt32(Pget[6]);
+                        idlestart = Convert.ToBoolean(Pget[7]);
+                        idletimer = Convert.ToInt32(Pget[8]);
+                        idleminer = Pget[9];
                     }
                     catch { }
                 }
@@ -753,6 +771,8 @@ namespace CUDA_Manager
                 buStart.Text = "Start Miner";
                 tsStart.Text = "Start Miner";
                 laActive.Text = "Active Miner: N/A";
+                if (!bg_idler.IsBusy)
+                    bg_idler.RunWorkerAsync();
             }
         }
 
@@ -929,7 +949,13 @@ namespace CUDA_Manager
                     if (rowidx >= dgView.Rows.Count)
                         rowidx = 0;
                     maxfail = Convert.ToInt32(dgView.Rows[rowidx].Cells[3].Value);
-                    failover(dgView.Rows[rowidx].Cells[0].Value.ToString());
+                    if (idlestarter)
+                    {
+                        failover(idleminer);
+                        idlestarter = false;
+                    }
+                    else
+                        failover(dgView.Rows[rowidx].Cells[0].Value.ToString());
                     rowidx++;
                     first = false;
                 }
@@ -989,7 +1015,7 @@ namespace CUDA_Manager
                             {
                                 hrsum += Convert.ToDouble(hrtmp2[1], CultureInfo.InvariantCulture);
                                 hr = hrsum / hrcnt;
-                                if (output.Contains("GPU #0"))
+                                if (output.Contains(maingpu))
                                     hrcnt++;
                             }
                         }
@@ -1001,6 +1027,13 @@ namespace CUDA_Manager
                         else if (output.Contains("yay"))
                         {
                             yays++;
+                        }
+
+                        if (maingpu == null && output.Contains("GPU #"))
+                        {
+                            string[] arr1 = output.Split(']');
+                            string[] arr2 = arr1[1].Split(':');
+                            maingpu = arr2[0];
                         }
 
                         //report to monitor
@@ -1109,7 +1142,20 @@ namespace CUDA_Manager
 
             tsTemps.Text = tempstat;
             tsFanstat.Text = fanstat;
-            trayIcon.Text = "CUDA Manager\r\n" + activeminer + "\r\n" + tsHR.Text.Replace("Avg. Hashrate: ", "") + "\r\n" + tempstat;
+            trayIcon.Text = "CUDA Manager\r\n" + TrayTipper() + "\r\n" + tsHR.Text.Replace("Avg. Hashrate: ", "") + "\r\n" + hightemp + "°C";
+        }
+
+        public string TrayTipper()
+        {
+            if (activeminer != null && buStart.Text == "Stop Miner")
+            {
+                string threshold = "CUDA Manager\r\n" + "\r\n" + tsHR.Text.Replace("Avg. Hashrate: ", "") + "\r\n" + hightemp + "°C";
+                int limiter = (63 - threshold.Length) - 3;
+                if (activeminer.Length > limiter)
+                    return activeminer.Substring(0, limiter) + "...";
+                return activeminer;
+            }
+            return "Idle";
         }
 
         //Monitor
@@ -1141,8 +1187,8 @@ namespace CUDA_Manager
                 timerunning = DateTime.Now.Subtract(starttime);
                 timespent = (int)timerunning.TotalMinutes;
 
-                if (timerunning.Hours > 0)
-                    tsTime.Text = "Time Elapsed: " + timerunning.Hours.ToString() + " hr. " + timerunning.Minutes.ToString() + " min.";
+                if (timerunning.TotalHours >= 1)
+                    tsTime.Text = "Time Elapsed: " + ((int)timerunning.TotalHours).ToString() + " hr. " + timerunning.Minutes.ToString() + " min.";
                 else
                     tsTime.Text = "Time Elapsed: " + timespent.ToString() + " min.";
 
@@ -1352,7 +1398,7 @@ namespace CUDA_Manager
             entry[2] = Math.Round(hr, 2).ToString() + "kh/s";
             entry[3] = yaycnt.ToString() + "/min.";
             entry[4] = yays.ToString();
-            entry[5] = timerunning.Hours.ToString() + " hr. " + timerunning.Minutes.ToString() + " min.";
+            entry[5] = ((int)timerunning.TotalHours).ToString() + " hr. " + timerunning.Minutes.ToString() + " min.";
             entry[6] = hightemp.ToString() + "°C";
             entry[7] = fanspeed.ToString() + "%";
 
@@ -1486,6 +1532,52 @@ namespace CUDA_Manager
         {
             Form f = new adv(this);
             f.ShowDialog(this);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            IPHostEntry Host = Dns.GetHostEntry("stratum.doge.hashfaster.com");
+            
+
+                Socket s = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+
+                try
+                {
+                    s.Connect(Host.AddressList[0], 3339);
+                    MessageBox.Show(s.Connected.ToString());
+                    s.Disconnect(true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                    // something went wrong
+                }
+        }
+
+        private void bg_idler_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (!bg_idler.CancellationPending)
+            {
+                if (idlestart)
+                {
+                    int idletime = SysDetect.GetLastInputTime();
+                    if (idletime > idletimer)
+                    {
+                        bg_idler.CancelAsync();
+                    }
+                }
+            }
+        }
+
+        private void bg_idler_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (buStart.Text == "Start Miner")
+            {
+                idlestarter = true;
+                MinerController(false);
+            }
         }
 
     }
