@@ -44,14 +44,17 @@ namespace CUDA_Manager
         static string datpath = Environment.CurrentDirectory + "\\Data\\";
         private delegate bool StateChecker();
         public bool idlestart = false;
-        bool idlestarter = false;
         public int idletimer = -1;
         public string idleminer;
+        public bool AutoStart = false;
+        public bool HaltRet = false;
         public List<string[]> logs = new List<string[]>();
         public int unsafetmp = 80;
         public int shutdowntmp = 100;
         public List<string> miners = new List<string>();
         bool nocheck = false;
+        bool idled = false;
+        bool idlestarter = false;
         bool isDirty = false;
         bool import = false;
         bool hasFailed = true;
@@ -193,6 +196,10 @@ namespace CUDA_Manager
                 LoadListDat();
                 CBcores.SelectedIndex = 0;
                 bg_idler.RunWorkerAsync();
+                if (AutoStart)
+                {
+                    buStart.PerformClick();
+                }
             }
         }
 
@@ -354,6 +361,11 @@ namespace CUDA_Manager
                 conSelMiner.Enabled = true;
             else
                 conSelMiner.Enabled = false;
+
+            if (dgView.SelectedRows.Count > 0)
+                conOpenBat.Enabled = true;
+            else
+                conOpenBat.Enabled = false;
         }
 
         #endregion
@@ -517,7 +529,7 @@ namespace CUDA_Manager
         {
             try
             {
-                string[] Pset = new string[10];
+                string[] Pset = new string[12];
                 Pset[0] = toolOnTop.Checked.ToString();
                 Pset[1] = toolMinTray.Checked.ToString();
                 Pset[2] = OHprotect.Checked.ToString();
@@ -525,13 +537,13 @@ namespace CUDA_Manager
                 Pset[4] = fansetting;
                 Pset[5] = unsafetmp.ToString();
                 Pset[6] = shutdowntmp.ToString();
+                Pset[7] = idlestart.ToString();
+                Pset[8] = idletimer.ToString();
+                Pset[9] = idleminer;
+                Pset[10] = HaltRet.ToString();
+                Pset[11] = AutoStart.ToString();
 
-                if (idletimer != -1)
-                {
-                    Pset[7] = idlestart.ToString();
-                    Pset[8] = idletimer.ToString();
-                    Pset[9] = idleminer;
-                }
+
 
                 File.WriteAllLines(datpath + "settings.dat", Pset);
 
@@ -565,6 +577,8 @@ namespace CUDA_Manager
                         idlestart = Convert.ToBoolean(Pget[7]);
                         idletimer = Convert.ToInt32(Pget[8]);
                         idleminer = Pget[9];
+                        HaltRet = Convert.ToBoolean(Pget[10]);
+                        AutoStart = Convert.ToBoolean(Pget[11]);
                     }
                     catch { }
                 }
@@ -771,8 +785,6 @@ namespace CUDA_Manager
                 buStart.Text = "Start Miner";
                 tsStart.Text = "Start Miner";
                 laActive.Text = "Active Miner: N/A";
-                if (!bg_idler.IsBusy)
-                    bg_idler.RunWorkerAsync();
             }
         }
 
@@ -1558,26 +1570,54 @@ namespace CUDA_Manager
 
         private void bg_idler_DoWork(object sender, DoWorkEventArgs e)
         {
+            idled = false;
             while (!bg_idler.CancellationPending)
             {
-                if (idlestart)
+                if (idlestart && !idled)
                 {
                     int idletime = SysDetect.GetLastInputTime();
                     if (idletime > idletimer)
                     {
-                        bg_idler.CancelAsync();
+                        bg_idler.ReportProgress(1);
                     }
                 }
+                else if (idled && HaltRet)
+                {
+                    int idletime = SysDetect.GetLastInputTime();
+                    if (idletime < idletimer)
+                    {
+                        bg_idler.ReportProgress(0);
+                    }
+                }
+                Thread.Sleep(5000);
             }
         }
 
-        private void bg_idler_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void bg_idler_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (buStart.Text == "Start Miner")
+            if (e.ProgressPercentage == 1)
             {
-                idlestarter = true;
-                MinerController(false);
+                if (buStart.Text == "Start Miner")
+                {
+                    idled = true;
+                    idlestarter = true;
+                    MinerController(false);
+                }
             }
+            else if (e.ProgressPercentage == 0)
+            {
+                MinerController(true);
+                idled = false;
+            }
+        }
+
+        private void conOpenBat_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(Environment.SystemDirectory + "\\notepad.exe", minepath + dgView.SelectedRows[0].Cells[0].Value.ToString() + ".bat");
+            }
+            catch { MessageBox.Show("Sorry, unable to find batch file for this miner."); }
         }
 
     }

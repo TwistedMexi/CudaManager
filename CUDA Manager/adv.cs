@@ -20,6 +20,21 @@ namespace CUDA_Manager
 
         private void buOkay_Click(object sender, EventArgs e)
         {
+            if (chkAutoStart.Checked)
+            {
+                parent.AutoStart = true;
+            }
+            else
+                parent.AutoStart = false;
+
+            if (chkHaltRet.Checked)
+            {
+                parent.HaltRet = true;
+            }
+            else
+                parent.HaltRet = false;
+
+
             if (chkIdle.Checked)
                 parent.idlestart = true;
             else
@@ -50,12 +65,27 @@ namespace CUDA_Manager
         {
             numAct.Value = 80;
             numShut.Value = 100;
+            chkAutoStart.Checked = false;
+            chkHaltRet.Checked = false;
+            chkIdle.Checked = false;
+
         }
 
         private void adv_Load(object sender, EventArgs e)
         {
             numAct.Value = parent.unsafetmp;
             numShut.Value = parent.shutdowntmp;
+
+            if (parent.AutoStart)
+            {
+                chkAutoStart.Checked = true;
+            }
+
+            if (parent.HaltRet)
+            {
+                chkHaltRet.Checked = true;
+            }
+
             if (parent.idletimer >= 60)
                 numIdle.Value = parent.idletimer / 60;
 
@@ -66,10 +96,16 @@ namespace CUDA_Manager
             {
                 cbIdleMine.Items.Add(miner);
             }
-            if (parent.idleminer != "")
-                cbIdleMine.SelectedItem = parent.idleminer;
-            else
+
+            if (cbIdleMine.Items.Count > 0)
                 cbIdleMine.SelectedIndex = 0;
+
+            if (parent.idleminer != "" && parent.idleminer != null)
+            {
+                if (cbIdleMine.Items.Contains(parent.idleminer))
+                    cbIdleMine.SelectedItem = parent.idleminer;
+            }
+                
         }
     }
 }

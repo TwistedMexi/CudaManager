@@ -112,6 +112,9 @@
             this.bg_tray = new System.ComponentModel.BackgroundWorker();
             this.saFilediag = new System.Windows.Forms.SaveFileDialog();
             this.bg_idler = new System.ComponentModel.BackgroundWorker();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.conOpenBat = new System.Windows.Forms.ToolStripMenuItem();
             this.gbFailover.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgView)).BeginInit();
             this.conDG.SuspendLayout();
@@ -392,9 +395,11 @@
             // conDG
             // 
             this.conDG.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.conSelMiner});
+            this.conSelMiner,
+            this.toolStripSeparator5,
+            this.toolStripMenuItem1});
             this.conDG.Name = "conDG";
-            this.conDG.Size = new System.Drawing.Size(180, 26);
+            this.conDG.Size = new System.Drawing.Size(180, 76);
             this.conDG.Opening += new System.ComponentModel.CancelEventHandler(this.conDG_Opening);
             // 
             // conSelMiner
@@ -915,9 +920,31 @@
             // 
             // bg_idler
             // 
+            this.bg_idler.WorkerReportsProgress = true;
             this.bg_idler.WorkerSupportsCancellation = true;
             this.bg_idler.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bg_idler_DoWork);
-            this.bg_idler.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bg_idler_RunWorkerCompleted);
+            this.bg_idler.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bg_idler_ProgressChanged);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(176, 6);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.conOpenBat});
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(179, 22);
+            this.toolStripMenuItem1.Text = "Advanced";
+            // 
+            // conOpenBat
+            // 
+            this.conOpenBat.Enabled = false;
+            this.conOpenBat.Name = "conOpenBat";
+            this.conOpenBat.Size = new System.Drawing.Size(157, 22);
+            this.conOpenBat.Text = "Open Batch File";
+            this.conOpenBat.Click += new System.EventHandler(this.conOpenBat_Click);
             // 
             // Form1
             // 
@@ -1041,6 +1068,9 @@
         private System.Windows.Forms.ToolStripMenuItem tsAdvance;
         private System.Windows.Forms.Button button1;
         private System.ComponentModel.BackgroundWorker bg_idler;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem conOpenBat;
     }
 }
 

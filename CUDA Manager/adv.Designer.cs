@@ -41,6 +41,8 @@
             this.numIdle = new System.Windows.Forms.NumericUpDown();
             this.cbIdleMine = new System.Windows.Forms.ComboBox();
             this.chkIdle = new System.Windows.Forms.CheckBox();
+            this.chkHaltRet = new System.Windows.Forms.CheckBox();
+            this.chkAutoStart = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numAct)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShut)).BeginInit();
@@ -132,7 +134,7 @@
             // 
             this.buOkay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.buOkay.Location = new System.Drawing.Point(207, 207);
+            this.buOkay.Location = new System.Drawing.Point(207, 231);
             this.buOkay.Name = "buOkay";
             this.buOkay.Size = new System.Drawing.Size(93, 23);
             this.buOkay.TabIndex = 2;
@@ -144,7 +146,7 @@
             // 
             this.buReset.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.buReset.Location = new System.Drawing.Point(12, 207);
+            this.buReset.Location = new System.Drawing.Point(12, 231);
             this.buReset.Name = "buReset";
             this.buReset.Size = new System.Drawing.Size(105, 23);
             this.buReset.TabIndex = 3;
@@ -154,19 +156,21 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.chkAutoStart);
+            this.groupBox2.Controls.Add(this.chkHaltRet);
             this.groupBox2.Controls.Add(this.numIdle);
             this.groupBox2.Controls.Add(this.cbIdleMine);
             this.groupBox2.Controls.Add(this.chkIdle);
             this.groupBox2.Location = new System.Drawing.Point(12, 109);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(288, 79);
+            this.groupBox2.Size = new System.Drawing.Size(288, 114);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Miner Options";
             // 
             // numIdle
             // 
-            this.numIdle.Location = new System.Drawing.Point(179, 18);
+            this.numIdle.Location = new System.Drawing.Point(182, 57);
             this.numIdle.Maximum = new decimal(new int[] {
             60,
             0,
@@ -189,26 +193,46 @@
             // cbIdleMine
             // 
             this.cbIdleMine.FormattingEnabled = true;
-            this.cbIdleMine.Location = new System.Drawing.Point(31, 44);
+            this.cbIdleMine.Location = new System.Drawing.Point(115, 83);
             this.cbIdleMine.Name = "cbIdleMine";
-            this.cbIdleMine.Size = new System.Drawing.Size(196, 21);
+            this.cbIdleMine.Size = new System.Drawing.Size(157, 21);
             this.cbIdleMine.TabIndex = 1;
             // 
             // chkIdle
             // 
             this.chkIdle.AutoSize = true;
-            this.chkIdle.Location = new System.Drawing.Point(6, 19);
+            this.chkIdle.Location = new System.Drawing.Point(9, 58);
             this.chkIdle.Name = "chkIdle";
             this.chkIdle.Size = new System.Drawing.Size(273, 17);
             this.chkIdle.TabIndex = 0;
             this.chkIdle.Text = "Start miner when idle more than                    minutes.";
             this.chkIdle.UseVisualStyleBackColor = true;
             // 
+            // chkHaltRet
+            // 
+            this.chkHaltRet.AutoSize = true;
+            this.chkHaltRet.Location = new System.Drawing.Point(9, 85);
+            this.chkHaltRet.Name = "chkHaltRet";
+            this.chkHaltRet.Size = new System.Drawing.Size(95, 17);
+            this.chkHaltRet.TabIndex = 3;
+            this.chkHaltRet.Text = "Halt on Return";
+            this.chkHaltRet.UseVisualStyleBackColor = true;
+            // 
+            // chkAutoStart
+            // 
+            this.chkAutoStart.AutoSize = true;
+            this.chkAutoStart.Location = new System.Drawing.Point(9, 19);
+            this.chkAutoStart.Name = "chkAutoStart";
+            this.chkAutoStart.Size = new System.Drawing.Size(182, 17);
+            this.chkAutoStart.TabIndex = 4;
+            this.chkAutoStart.Text = "Start miner automatically on open";
+            this.chkAutoStart.UseVisualStyleBackColor = true;
+            // 
             // adv
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(310, 242);
+            this.ClientSize = new System.Drawing.Size(310, 266);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.buReset);
             this.Controls.Add(this.buOkay);
@@ -242,5 +266,7 @@
         private System.Windows.Forms.ComboBox cbIdleMine;
         private System.Windows.Forms.CheckBox chkIdle;
         private System.Windows.Forms.NumericUpDown numIdle;
+        private System.Windows.Forms.CheckBox chkAutoStart;
+        private System.Windows.Forms.CheckBox chkHaltRet;
     }
 }
